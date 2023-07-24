@@ -1,0 +1,78 @@
+
+## punto 10.56
+
+# datos
+
+p0<-0.40
+n<-15
+x<-8
+p<-x/n;p # proporción de a favor
+conf<-0.95
+
+## H0: p = 40
+## H1 P > 40
+
+z<-(p-p0)/sqrt(p0*(1-p0)/n)
+z
+
+pnorm(-abs(z))
+
+
+## directo
+
+prop.test(x=x, n=n, alternative = "greater",
+          p=p0)
+
+
+datos<-data.frame(penacap=c(rep("a favor",8),
+                            rep("en contra",7)))
+
+prop.test(x=table(datos$penacap),n=nrow(datos),p=0.4)
+
+
+## permutación 
+
+estp<-datos %>% 
+  observe(response = penacap, success = "a favor",
+          stat = "prop")
+
+distNULL<-datos %>% 
+  specify(response = penacap,success = "a favor") %>% 
+  hypothesise(null="point",p=0.4) %>% 
+  generate(reps = 1000, type="draw") %>%
+  calculate(stat = "prop")
+
+distNULL %>% visualise() +
+  shade_p_value(obs_stat=estp,direction="greater")
+
+?shade_p_value
+## p value
+
+distNULL %>%get_pvalue(obs_stat=estp,direction="greater") 
+
+###
+
+
+########### PUNTO 10.82
+
+# H0 x sigue una distribución hipergeometrica (8 ,3,5)
+m<-5 #canicas rojas
+k<-3 # cantidad de canicas ques e extraen
+n<-3
+p0<-dhyper(x=0,m=m,n=n,k=k);p0
+p1<-dhyper(x=1,m=m,n=n,k=k);p1
+p2<-dhyper(x=2,m=m,n=n,k=k);p2
+p3<-dhyper(x=3,m=m,n=n,k=k);p3
+
+sum(p0,p1,p2,p3)
+
+
+canicas <- c('0', '1', '2', '3')
+observados <- c(1, 31, 55, 25)
+
+chisq.test(x=observados,p=c(p0,p1,p2,p3))
+
+##### prueba de permutación
+
+chisq.test(x=observados,p=c(p0,p1,p2,p3), simulate.p.value = TRUE, B=100000)
+
